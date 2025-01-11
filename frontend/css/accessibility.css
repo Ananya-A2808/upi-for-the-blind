@@ -69,4 +69,52 @@
     padding: 0;
     position: absolute;
     width: 1px;
+}
+
+/* Focus styles */
+:focus {
+    outline: 3px solid #4A90E2;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+    * {
+        forced-color-adjust: none;
+    }
+}
+
+/* Large text for better readability */
+body {
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Improved form controls */
+input, button {
+    font-size: 1rem;
+    padding: 0.5rem;
+}
+
+/* Voice control button */
+.voice-control-btn {
+    background: #4A90E2;
+    color: white;
+    border: none;
+    padding: 1rem;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.voice-control-btn:focus {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Help text */
+.help-text {
+    display: block;
+    margin-top: 0.5rem;
+    color: #666;
 } 

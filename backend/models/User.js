@@ -27,7 +27,13 @@ const userSchema = new mongoose.Schema({
     balance: {
         type: Number,
         default: 1000 // Starting balance
-    }
+    },
+    transactionHistory: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Transaction'
+        }
+    ]
 }, {
     timestamps: true
 });

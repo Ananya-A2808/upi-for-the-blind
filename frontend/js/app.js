@@ -52,10 +52,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Login response:', response);
 
                 if (response.message === 'OTP sent to email') {
+                    // Store email for OTP verification
+                    document.getElementById('otpEmail').value = email.value;
+                    
+                    // Show OTP form
                     showNotification('OTP sent to your email', 'success');
-                    const twoFactorSection = document.getElementById('twoFactorSection');
+                    const twoFactorSection = document.getElementById('twoFactorForm');
                     twoFactorSection.hidden = false;
                     document.getElementById('otpCode').focus();
+                    
+                    // Hide login form
+                    loginForm.hidden = true;
                 } else {
                     showNotification(response.message || 'Unknown error occurred');
                 }
@@ -78,45 +85,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Handle 2FA Form
+    // Handle OTP Form
     const twoFactorForm = document.getElementById('twoFactorForm');
     if (twoFactorForm) {
         twoFactorForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             try {
-                const otp = document.getElementById('otpCode');
-                const email = document.getElementById('loginEmail');
+                const email = document.getElementById('otpEmail').value;
+                const otp = document.getElementById('otpCode').value;
 
-                if (!otp.value) {
-                    otp.classList.add('input-error');
-                    showNotification('OTP is required');
+                if (!email || !otp) {
+                    showNotification('Both email and OTP are required');
                     return;
                 }
 
+                // Show loading state
                 const submitButton = twoFactorForm.querySelector('button[type="submit"]');
                 submitButton.disabled = true;
                 submitButton.textContent = 'Verifying...';
 
-                const response = await authService.verifyOTP(email.value, otp.value);
-                console.log('OTP verification response:', response);
-
-                if (response.token) {
-                    localStorage.setItem('token', response.token);
-                    localStorage.setItem('userId', response.userId);
-                    showNotification('Login successful!', 'success');
-                    setTimeout(() => {
-                        window.location.href = './dashboard.html';
-                    }, 1500);
-                } else {
-                    showNotification(response.message || 'Verification failed');
-                }
+                const response = await authService.verifyOTP(email, otp);
+                
+                showNotification('Login successful! Redirecting...', 'success');
+                
+                // Redirect after successful verification
+                setTimeout(() => {
+                    window.location.href = './myaccount.html';
+                }, 1000);
+                
             } catch (error) {
                 console.error('OTP verification error:', error);
-                showNotification(error.message || 'Verification failed');
+                showNotification(error.message || 'OTP verification failed');
             } finally {
                 const submitButton = twoFactorForm.querySelector('button[type="submit"]');
                 submitButton.disabled = false;
-                submitButton.textContent = 'Verify';
+                submitButton.textContent = 'Verify OTP';
             }
         });
     }

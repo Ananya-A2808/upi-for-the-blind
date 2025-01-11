@@ -71,4 +71,58 @@ class UPIService {
             throw error;
         }
     }
+
+    async getUserProfile() {
+        try {
+            const response = await fetch(`${this.baseUrl}/profile`, {
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to fetch user profile');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Get user profile error:', error);
+            throw error;
+        }
+    }
+
+    async getTransactions(limit) {
+        try {
+            const response = await fetch(`${this.baseUrl}/transactions?limit=${limit}`, {
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to fetch transactions');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Get transactions error:', error);
+            throw error;
+        }
+    }
+
+    async validateQRCode() {
+        try {
+            const response = await fetch(`${this.baseUrl}/validateQRCode`, {
+                headers: this.getHeaders()
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to validate QR code');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Validate QR code error:', error);
+            throw error;
+        }
+    }
 } 

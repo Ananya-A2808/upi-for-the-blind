@@ -16,10 +16,9 @@ const transactionSchema = new mongoose.Schema({
         required: true,
         min: 0
     },
-    description: {
+    note: {
         type: String,
-        trim: true,
-        default: 'Transfer'
+        default: 'UPI Transfer'
     },
     status: {
         type: String,

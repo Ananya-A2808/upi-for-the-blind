@@ -5,14 +5,13 @@ const upiController = {
     // Transfer money
     async transfer(req, res) {
         try {
-            console.log('Transfer request body:', req.body);
-            const { receiverUpiId, amount, description } = req.body;
+            const { receiverUpiId, amount, note } = req.body;
             const senderId = req.user.userId;
 
             // Input validation
-            if (!receiverUpiId || !amount) {
+            if (!receiverUpiId || !amount || amount <= 0) {
                 return res.status(400).json({ 
-                    message: 'Receiver UPI ID and amount are required' 
+                    message: 'Invalid transfer details' 
                 });
             }
 
@@ -25,20 +24,20 @@ const upiController = {
             // Find receiver
             const receiver = await User.findOne({ upiId: receiverUpiId });
             if (!receiver) {
-                return res.status(404).json({ message: 'Receiver UPI ID not found' });
+                return res.status(404).json({ message: 'Receiver not found' });
             }
 
-            // Check if sender has sufficient balance
+            // Check sufficient balance
             if (sender.balance < amount) {
                 return res.status(400).json({ message: 'Insufficient balance' });
             }
 
-            // Create and save transaction
+            // Create transaction
             const transaction = new Transaction({
                 sender: senderId,
                 receiver: receiver._id,
                 amount: parseFloat(amount),
-                description: description || 'Transfer'
+                note: note || 'UPI Transfer'
             });
 
             // Update balances
@@ -54,17 +53,13 @@ const upiController = {
 
             res.json({
                 message: 'Transfer successful',
-                transaction: {
-                    id: transaction._id,
-                    amount: transaction.amount,
-                    description: transaction.description,
-                    timestamp: transaction.createdAt
-                }
+                transactionId: transaction._id,
+                amount: transaction.amount
             });
 
         } catch (error) {
             console.error('Transfer error:', error);
-            res.status(500).json({ message: 'Transfer failed', error: error.message });
+            res.status(500).json({ message: 'Transfer failed' });
         }
     },
 
@@ -72,6 +67,7 @@ const upiController = {
     async getTransactions(req, res) {
         try {
             const userId = req.user.userId;
+            const limit = parseInt(req.query.limit) || 10;
 
             const transactions = await Transaction.find({
                 $or: [{ sender: userId }, { receiver: userId }]
@@ -79,7 +75,7 @@ const upiController = {
             .populate('sender', 'name upiId')
             .populate('receiver', 'name upiId')
             .sort({ createdAt: -1 })
-            .limit(20);
+            .limit(limit);
 
             res.json(transactions);
         } catch (error) {
@@ -92,8 +88,8 @@ const upiController = {
     async getBalance(req, res) {
         try {
             const userId = req.user.userId;
-            const user = await User.findById(userId);
-            
+            const user = await User.findById(userId).select('balance');
+
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
@@ -102,6 +98,98 @@ const upiController = {
         } catch (error) {
             console.error('Get balance error:', error);
             res.status(500).json({ message: 'Failed to fetch balance' });
+        }
+    },
+
+    // Get user profile
+    async getProfile(req, res) {
+        try {
+            const userId = req.user.userId;
+            const user = await User.findById(userId).select('-password -otp -otpExpiry');
+
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.json({
+                name: user.name,
+                email: user.email,
+                upiId: user.upiId,
+                balance: user.balance
+            });
+        } catch (error) {
+            console.error('Get profile error:', error);
+            res.status(500).json({ message: 'Failed to fetch profile' });
+        }
+    },
+
+    // Validate QR code
+    async validateQR(req, res) {
+        try {
+            const { qrData } = req.body;
+            
+            // Basic QR validation
+            if (!qrData || !qrData.upiId) {
+                return res.status(400).json({ message: 'Invalid QR code' });
+            }
+
+            // Find receiver by UPI ID
+            const receiver = await User.findOne({ upiId: qrData.upiId })
+                .select('name upiId');
+
+            if (!receiver) {
+                return res.status(404).json({ message: 'Receiver not found' });
+            }
+
+            res.json({
+                name: receiver.name,
+                upiId: receiver.upiId,
+                amount: qrData.amount || 0,
+                note: qrData.note || ''
+            });
+        } catch (error) {
+            console.error('Validate QR error:', error);
+            res.status(500).json({ message: 'Failed to validate QR code' });
+        }
+    },
+
+    // Process payment
+    async processPayment(req, res) {
+        try {
+            const userId = req.user.userId;
+            const user = await User.findById(userId);
+            
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            res.json({
+                name: user.name,
+                upiId: user.upiId,
+                balance: user.balance
+            });
+        } catch (error) {
+            console.error('Process payment error:', error);
+            res.status(500).json({ message: 'Failed to process payment' });
+        }
+    },
+
+    // Get transaction history
+    async getTransactionHistory(req, res) {
+        try {
+            const userId = req.user.userId;
+            const transactions = await Transaction.find({
+                $or: [{ sender: userId }, { receiver: userId }]
+            })
+            .populate('sender', 'name upiId')
+            .populate('receiver', 'name upiId')
+            .sort({ createdAt: -1 })
+            .limit(20);
+
+            res.json(transactions);
+        } catch (error) {
+            console.error('Get transaction history error:', error);
+            res.status(500).json({ message: 'Failed to fetch transaction history' });
         }
     }
 };

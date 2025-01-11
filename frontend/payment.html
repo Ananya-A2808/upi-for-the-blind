@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPI Payment - Accessible Version</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+</head>
+<body>
+    <main id="main" role="main">
+        <h1>Make Payment</h1>
+
+        <!-- QR Scanner Section -->
+        <section id="qrScanner" aria-live="polite">
+            <button id="startScanning" 
+                    onclick="paymentHandler.startPayment()"
+                    class="primary-button">
+                Start QR Scanning
+            </button>
+            <div id="scannerFeedback" 
+                 class="feedback-text" 
+                 aria-live="assertive">
+                <!-- Voice guidance will be announced here -->
+            </div>
+        </section>
+
+        <!-- Payment Confirmation -->
+        <section id="paymentConfirmation" 
+                 hidden 
+                 aria-live="polite">
+            <h2>Confirm Payment</h2>
+            <div class="payment-details">
+                <p>Merchant: <span id="merchantName"></span></p>
+                <p>Amount: <span id="paymentAmount"></span></p>
+            </div>
+            <button id="confirmPayment" 
+                    onclick="paymentHandler.confirmPayment()"
+                    class="confirm-button">
+                Confirm Payment
+            </button>
+            <button id="cancelPayment" 
+                    onclick="paymentHandler.cancelPayment()"
+                    class="cancel-button">
+                Cancel
+            </button>
+        </section>
+
+        <!-- Voice Authentication -->
+        <section id="voiceAuth" 
+                 hidden 
+                 aria-live="polite">
+            <h2>Voice Authentication</h2>
+            <div id="voiceAuthFeedback" 
+                 class="feedback-text">
+                <!-- Voice auth feedback will appear here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/utils/screenReader.js"></script>
+    <script src="js/utils/voiceCommands.js"></script>
+    <script src="js/utils/qrScanner.js"></script>
+    <script src="js/utils/voiceAuth.js"></script>
+    <script src="js/payment.js"></script>
+</body>
+</html> 

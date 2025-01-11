@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 
 // Debug route
 router.get('/test', (req, res) => {
-    res.json({ message: 'UPI routes are working' });
+    res.json({ status: 'ok' });
 });
 
 // Protected routes
@@ -27,6 +27,18 @@ router.get('/balance', async (req, res) => {
 router.get('/transactions', async (req, res) => {
     console.log('Transactions request received');
     await upiController.getTransactions(req, res);
+});
+
+// Get profile
+router.get('/profile', async (req, res) => {
+    console.log('Profile request received');
+    await upiController.getProfile(req, res);
+});
+
+// Post validate QR
+router.post('/validate-qr', async (req, res) => {
+    console.log('Validate QR request received');
+    await upiController.validateQR(req, res);
 });
 
 module.exports = router; 

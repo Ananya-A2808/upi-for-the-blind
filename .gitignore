@@ -1,8 +1,7 @@
 # Dependencies
 node_modules/
-npm-debug.log
-yarn-debug.log
-yarn-error.log
+package-lock.json
+yarn.lock
 
 # Environment variables
 .env
@@ -12,7 +11,12 @@ yarn-error.log
 .env.test
 .env.production
 
-# IDE/Editor specific
+# Build outputs
+dist/
+build/
+out/
+
+# IDE and Editor files
 .idea/
 .vscode/
 *.swp
@@ -27,20 +31,15 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Testing
+coverage/
+.nyc_output/
+
 # Runtime data
 pids/
 *.pid
 *.seed
 *.pid.lock
-
-# Testing
-coverage/
-.nyc_output/
-
-# Build output
-dist/
-build/
-out/
 
 # Temporary files
 tmp/
@@ -48,11 +47,33 @@ temp/
 
 # Debug files
 .debug/
+debug.log
 
-# Local SSL certificates
+# Database files
+*.sqlite
+*.db
+
+# SSL/TLS Certificates
 *.pem
 *.key
 *.crt
+*.cer
 
-# Personal config files
-config.local.js 
+# Backup files
+*.bak
+*.backup
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Optional: Specific to your project
+uploads/
+public/uploads/
+config/local.js 

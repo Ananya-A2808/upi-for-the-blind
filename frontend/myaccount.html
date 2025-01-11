@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My UPI Account - Accessible Version</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+</head>
+<body>
+    <!-- Loading Indicators -->
+    <div id="loadingIndicator" class="loading" hidden></div>
+    <div id="loadingOverlay" class="loading-overlay" hidden>
+        <div class="loading-text">Loading your account...</div>
+    </div>
+
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status" hidden>
+        Offline Mode - Limited Features Available
+    </div>
+
+    <main id="main" role="main">
+        <!-- Profile Summary Section -->
+        <section id="profileSummary" class="profile-card" aria-labelledby="profileTitle">
+            <h1 id="profileTitle" tabindex="0">My UPI Account</h1>
+            <div class="profile-details" aria-live="polite">
+                <p class="upi-id">UPI ID: <span id="userUpiId">Loading...</span></p>
+                <p class="balance">Balance: <span id="currentBalance">Loading...</span></p>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section id="quickActions" class="action-grid" aria-labelledby="actionsTitle">
+            <h2 id="actionsTitle">Quick Actions</h2>
+            <div class="grid-container">
+                <a href="scan.html" class="action-card" role="button">
+                    <img src="icons/qr-scan.svg" alt="" class="icon" aria-hidden="true">
+                    <span>Scan QR</span>
+                </a>
+                <a href="send-upi.html" class="action-card" role="button">
+                    <img src="icons/upi.svg" alt="" class="icon" aria-hidden="true">
+                    <span>Send via UPI</span>
+                </a>
+                <a href="send-phone.html" class="action-card" role="button">
+                    <img src="icons/phone.svg" alt="" class="icon" aria-hidden="true">
+                    <span>Send to Phone</span>
+                </a>
+                <a href="history.html" class="action-card" role="button">
+                    <img src="icons/history.svg" alt="" class="icon" aria-hidden="true">
+                    <span>Transaction History</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Navigation Bar -->
+    <nav class="bottom-nav" role="navigation">
+        <a href="myaccount.html" class="nav-item active">
+            <img src="icons/account.svg" alt="" class="icon" aria-hidden="true">
+            <span>My Account</span>
+        </a>
+        <a href="scan.html" class="nav-item">
+            <img src="icons/scan.svg" alt="" class="icon" aria-hidden="true">
+            <span>Scan</span>
+        </a>
+        <a href="send-upi.html" class="nav-item">
+            <img src="icons/send.svg" alt="" class="icon" aria-hidden="true">
+            <span>Send</span>
+        </a>
+        <a href="history.html" class="nav-item">
+            <img src="icons/history.svg" alt="" class="icon" aria-hidden="true">
+            <span>History</span>
+        </a>
+    </nav>
+
+    <!-- Voice Commands Help -->
+    <div id="voiceHelp" class="voice-help" hidden>
+        <p>Available Voice Commands:</p>
+        <ul>
+            <li>"Check balance" - Hear your current balance</li>
+            <li>"Scan QR" - Open QR scanner</li>
+            <li>"Send money" - Send money via UPI</li>
+            <li>"Show history" - View transaction history</li>
+            <li>"Help" - Show this help</li>
+        </ul>
+    </div>
+
+    <!-- Scripts in correct order -->
+    <script src="js/utils/errorHandler.js"></script>
+    <script src="js/utils/screenReader.js"></script>
+    <script src="js/utils/voiceGuide.js"></script>
+    <script src="js/utils/voiceCommands.js"></script>
+    <script src="js/utils/PageManager.js"></script>
+    <script src="js/services/upi.js"></script>
+    <script src="js/myaccount.js"></script>
+
+    <!-- Voice Guide Status -->
+    <div id="voiceStatus" class="voice-status" aria-live="polite"></div>
+</body>
+</html> 

@@ -9,6 +9,19 @@
     --success-color: #10B981;
     --accent-color: #8B5CF6;
     --border-color: #E5E7EB;
+    --primary-bg: #ffffff;
+    --card-bg: #f5f5f5;
+    --nav-bg: #ffffff;
+}
+
+/* Add dark mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-bg: #121212;
+        --card-bg: #1E1E1E;
+        --nav-bg: #1E1E1E;
+        --text-color: #ffffff;
+    }
 }
 
 body {
@@ -288,4 +301,181 @@ button:hover {
     color: var(--error-color);
     font-size: 0.875rem;
     margin-top: 0.25rem;
+}
+
+/* Icon styles */
+.icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.nav-item .icon {
+    margin-bottom: 4px;
+}
+
+.action-card .icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+    color: var(--primary-color);
+}
+
+/* Dark mode icon colors */
+@media (prefers-color-scheme: dark) {
+    .icon {
+        color: var(--text-color);
+    }
+    
+    .action-card .icon {
+        color: var(--accent-color);
+    }
+}
+
+/* Add loading indicator styles */
+.loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+    animation: loading 1.5s infinite;
+    z-index: 1000;
+}
+
+@keyframes loading {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.loading-text {
+    color: white;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+/* Connection status styles */
+body.offline .requires-connection {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.connection-status {
+    position: fixed;
+    bottom: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: var(--error-color);
+    color: white;
+    font-size: 0.875rem;
+    display: none;
+    z-index: 1000;
+}
+
+body.offline .connection-status {
+    display: block;
+}
+
+/* Add these styles to your main.css */
+.offline-message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--error-color);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    z-index: 1001;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+/* Hover effects with focus states for accessibility */
+.action-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.action-card:hover, 
+.action-card:focus {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    outline: 2px solid var(--accent-color);
+}
+
+.nav-item {
+    transition: color 0.2s;
+    position: relative;
+}
+
+.nav-item:hover::after,
+.nav-item:focus::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--accent-color);
+}
+
+/* Touch feedback for mobile */
+.action-card:active,
+.nav-item:active {
+    opacity: 0.7;
+}
+
+/* Voice guide indicator */
+.voice-active {
+    position: relative;
+}
+
+.voice-active::before {
+    content: '🔊';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 16px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 } 
