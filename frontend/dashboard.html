@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - UPI App</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+</head>
+<body>
+    <main id="main" role="main">
+        <nav class="navigation">
+            <button class="logout-btn" aria-label="Logout">Logout</button>
+        </nav>
+
+        <h1 tabindex="0">Dashboard</h1>
+        
+        <section id="balanceSection" aria-labelledby="balanceTitle">
+            <h2 id="balanceTitle">Your Balance</h2>
+            <p id="balanceAmount" class="balance">₹0.00</p>
+            <button class="refresh-btn" aria-label="Refresh balance">Refresh</button>
+        </section>
+
+        <section id="transferSection" aria-labelledby="transferTitle">
+            <h2 id="transferTitle">Send Money</h2>
+            <form id="transferForm" aria-label="Money transfer form">
+                <div class="form-group">
+                    <label for="receiverUpi">Receiver UPI ID</label>
+                    <input type="text" id="receiverUpi" required 
+                           aria-required="true" aria-describedby="upiHelp">
+                    <span id="upiHelp" class="help-text">Enter receiver's UPI ID</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="amount">Amount (₹)</label>
+                    <input type="number" id="amount" min="1" step="0.01" required 
+                           aria-required="true" aria-describedby="amountHelp">
+                    <span id="amountHelp" class="help-text">Enter amount to send</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description (Optional)</label>
+                    <input type="text" id="description" 
+                           aria-describedby="descriptionHelp">
+                    <span id="descriptionHelp" class="help-text">Add a note for this transfer</span>
+                </div>
+
+                <button type="submit" aria-label="Send money">Send</button>
+            </form>
+        </section>
+
+        <section id="transactionsSection" aria-labelledby="transactionsTitle">
+            <h2 id="transactionsTitle">Recent Transactions</h2>
+            <div id="transactionsList" class="transactions-list">
+                <!-- Transactions will be loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/upi.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html> 
