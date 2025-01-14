@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard - Blind UPI</title>
+  <style>
+    body { 
+      font-family: Arial; 
+      margin: 0;
+      padding: 20px;
+      background: #f0f2f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .balance {
+      font-size: 32px;
+      color: #1a73e8;
+      margin: 10px 0;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .logout-btn {
+      padding: 8px 16px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+    .users-list {
+      margin-top: 20px;
+    }
+    .no-users {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Dashboard</h1>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="card">
+      <h2>Your Balance</h2>
+      <div class="balance">₹<span id="userBalance">0.00</span></div>
+    </div>
+
+    <!-- Transfer Money Card -->
+    <div class="card">
+      <h2>Send Money</h2>
+      <div id="transferForm">
+        <select id="receiverSelect">
+          <option value="">Select recipient</option>
+        </select>
+        <input type="number" id="amount" placeholder="Enter amount" min="1" step="0.01" required>
+        <button onclick="initiateTransfer()">Send Money</button>
+      </div>
+      
+      <!-- OTP Verification Section -->
+      <div id="otpSection" style="display: none;">
+        <h3>Verify Transfer</h3>
+        <p>Enter the OTP sent to your email</p>
+        <input type="text" id="transferOtp" placeholder="Enter OTP" maxlength="6">
+        <button onclick="completeTransfer()">Verify & Complete Transfer</button>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card">
+      <h2>Recent Transactions</h2>
+      <div id="transactionHistory">
+        <!-- Transactions will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Check authentication
+    const token = localStorage.getItem('token');
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    // Load user balance
+    async function loadBalance() {
+      try {
+        const res = await fetch('http://localhost:3000/api/user-balance', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        document.getElementById('userBalance').textContent = data.balance.toFixed(2);
+      } catch (err) {
+        console.error('Error loading balance:', err);
+      }
+    }
+
+    // Load available users
+    async function loadUsers() {
+      try {
+        const res = await fetch('http://localhost:3000/api/users', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        const users = await res.json();
+        
+        const select = document.getElementById('receiverSelect');
+        select.innerHTML = '<option value="">Select recipient</option>';
+
+        if (users.length === 0) {
+          select.innerHTML += '<option disabled>No other users available</option>';
+          return;
+        }
+
+        users.forEach(user => {
+          select.innerHTML += `<option value="${user.email}">${user.name} (${user.email})</option>`;
+        });
+      } catch (err) {
+        console.error('Error loading users:', err);
+      }
+    }
+
+    let currentTransactionId = null;
+
+    async function initiateTransfer() {
+      const receiverEmail = document.getElementById('receiverSelect').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+
+      if (!receiverEmail || !amount || amount <= 0) {
+        alert('Please select a recipient and enter a valid amount');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/transfer/initiate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            receiverEmail,
+            amount
+          })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          currentTransactionId = data.transactionId;
+          document.getElementById('transferForm').style.display = 'none';
+          document.getElementById('otpSection').style.display = 'block';
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert('Error initiating transfer');
+      }
+    }
+
+    async function completeTransfer() {
+      const otp = document.getElementById('transferOtp').value;
+
+      if (!otp || !currentTransactionId) {
+        alert('Please enter OTP');
+        return;
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/transfer/complete', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            transactionId: currentTransactionId,
+            otp: otp
+          })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          alert('Transfer successful!');
+          loadBalance(); // Refresh balance
+          document.getElementById('amount').value = '';
+          document.getElementById('transferOtp').value = '';
+          document.getElementById('otpSection').style.display = 'none';
+          document.getElementById('transferForm').style.display = 'block';
+          currentTransactionId = null;
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        alert('Error completing transfer');
+      }
+    }
+
+    // Logout function
+    function logout() {
+      localStorage.removeItem('token');
+      window.location.href = 'login.html';
+    }
+
+    // Initialize
+    loadBalance();
+    loadUsers();
+  </script>
+</body>
+</html> 

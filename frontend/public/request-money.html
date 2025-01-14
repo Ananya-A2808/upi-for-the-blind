@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Request Money - Blind UPI</title>
+    <style>
+      /* Reuse styles from send-money.html */
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f0f2f5;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+      }
+      input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      .btn {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        background-color: #1a73e8;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .btn:hover {
+        background-color: #1557b0;
+      }
+      .back-link {
+        display: block;
+        margin-top: 1rem;
+        text-align: center;
+        color: #1a73e8;
+        text-decoration: none;
+      }
+      .success-message {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #d4edda;
+        border-radius: 4px;
+        color: #155724;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Request Money</h1>
+      
+      <form id="requestMoneyForm">
+        <div class="form-group">
+          <label for="payer">Payer UPI ID or Phone:</label>
+          <input type="text" id="payer" required>
+        </div>
+        <div class="form-group">
+          <label for="amount">Amount (₹):</label>
+          <input type="number" id="amount" min="1" step="0.01" required>
+        </div>
+        <div class="form-group">
+          <label for="note">Note (Optional):</label>
+          <input type="text" id="note" placeholder="Add a note for the payer">
+        </div>
+
+        <button type="submit" class="btn">Request Money</button>
+      </form>
+
+      <div id="successMessage" class="success-message">
+        <h3>Request Sent Successfully!</h3>
+        <p>The payer will be notified of your request.</p>
+      </div>
+
+      <a href="dashboard.html" class="back-link">Back to Dashboard</a>
+    </div>
+
+    <script>
+      // Check authentication
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '/login.html';
+      }
+
+      document.getElementById('requestMoneyForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = {
+          payer: document.getElementById('payer').value,
+          amount: document.getElementById('amount').value,
+          note: document.getElementById('note').value
+        };
+
+        try {
+          const response = await fetch('http://localhost:3000/api/request-money', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+
+          if (response.ok) {
+            document.getElementById('requestMoneyForm').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+              window.location.href = '/dashboard.html';
+            }, 3000);
+          } else {
+            const error = await response.json();
+            alert(error.message || 'Failed to send request');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred. Please try again.');
+        }
+      });
+    </script>
+  </body>
+</html> 

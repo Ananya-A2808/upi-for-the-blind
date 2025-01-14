@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Verify Account - Blind UPI</title>
+  <style>
+    body { 
+      font-family: Arial; 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f0f2f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    .otp-container {
+      margin: 15px 0;
+    }
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin: 15px 0;
+    }
+    .otp-input {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      font-size: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+    .status {
+      margin: 10px 0;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Verify Your Account</h2>
+    
+    <div class="otp-container">
+      <h3>Phone Verification</h3>
+      <p>Enter the OTP sent to your phone</p>
+      <div class="otp-inputs">
+        <input type="text" maxlength="1" class="otp-input" data-index="0">
+        <input type="text" maxlength="1" class="otp-input" data-index="1">
+        <input type="text" maxlength="1" class="otp-input" data-index="2">
+        <input type="text" maxlength="1" class="otp-input" data-index="3">
+        <input type="text" maxlength="1" class="otp-input" data-index="4">
+        <input type="text" maxlength="1" class="otp-input" data-index="5">
+      </div>
+      <button id="verifyPhoneBtn">Verify Phone</button>
+      <button id="resendPhoneOtpBtn">Resend OTP</button>
+      <p id="phoneStatus" class="status"></p>
+    </div>
+
+    <div id="verificationComplete" style="display: none;">
+      <h3>Verification Complete!</h3>
+      <p>Your account has been verified successfully.</p>
+      <button onclick="window.location.href='login.html'">Proceed to Login</button>
+    </div>
+  </div>
+
+  <script>
+    // Handle OTP input navigation
+    document.querySelectorAll('.otp-input').forEach(input => {
+      input.addEventListener('input', function() {
+        if (this.value.length === 1) {
+          const nextIndex = parseInt(this.dataset.index) + 1;
+          const nextInput = document.querySelector(`.otp-input[data-index="${nextIndex}"]`);
+          if (nextInput) nextInput.focus();
+        }
+      });
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Backspace' && !this.value) {
+          const prevIndex = parseInt(this.dataset.index) - 1;
+          const prevInput = document.querySelector(`.otp-input[data-index="${prevIndex}"]`);
+          if (prevInput) prevInput.focus();
+        }
+      });
+    });
+
+    // Get user details from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('userId');
+    console.log('Received userId:', userId);
+
+    if (!userId) {
+      alert('No userId found in URL');
+      window.location.href = 'signup.html';
+    }
+
+    // Verify phone OTP
+    document.getElementById('verifyPhoneBtn').onclick = async () => {
+      const otpInputs = document.querySelectorAll('.otp-input');
+      const otp = Array.from(otpInputs).map(input => input.value).join('');
+      
+      try {
+        const res = await fetch('http://localhost:3000/api/verify-phone', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, otp })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          document.getElementById('phoneStatus').textContent = 'Phone verified successfully!';
+          document.getElementById('phoneStatus').style.color = '#34a853';
+          document.querySelector('.otp-container').style.display = 'none';
+          document.getElementById('verificationComplete').style.display = 'block';
+        } else {
+          document.getElementById('phoneStatus').textContent = data.message || 'Verification failed';
+          document.getElementById('phoneStatus').style.color = '#dc3545';
+        }
+      } catch (err) {
+        console.error('Error:', err);
+        alert('Error during verification');
+      }
+    };
+
+    // Resend phone OTP
+    document.getElementById('resendPhoneOtpBtn').onclick = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/resend-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+
+        if (res.ok) {
+          alert('OTP resent successfully');
+        } else {
+          alert('Failed to resend OTP');
+        }
+      } catch (err) {
+        alert('Error resending OTP');
+      }
+    };
+  </script>
+</body>
+</html> 

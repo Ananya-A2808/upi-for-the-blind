@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sign Up - Blind UPI</title>
+  <style>
+    body { 
+      font-family: Arial; 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f0f2f5;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    button:hover {
+      background: #1557b0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sign Up</h2>
+    <form id="signupForm">
+      <input type="text" id="name" placeholder="Full Name" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="number" id="initial_balance" placeholder="Initial Balance" required min="0" step="0.01">
+      <button type="submit">Sign Up</button>
+    </form>
+    <p>Already have an account? <a href="login.html">Login</a></p>
+  </div>
+
+  <script>
+    document.getElementById('signupForm').onsubmit = async (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        initial_balance: parseFloat(document.getElementById('initial_balance').value) || 0
+      };
+
+      console.log('Attempting signup with:', formData);
+
+      try {
+        const res = await fetch('http://localhost:3000/api/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await res.json();
+        console.log('Server response:', data);
+        
+        if (res.ok) {
+          alert('Signup successful! Please login.');
+          window.location.href = 'login.html';
+        } else {
+          alert(data.message || 'Signup failed');
+        }
+      } catch (err) {
+        console.error('Signup error:', err);
+        alert('Error during signup');
+      }
+    };
+  </script>
+</body>
+</html> 
